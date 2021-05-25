@@ -1,0 +1,9 @@
+load_from_file: false
+train_policy: true
+model_file: tiger.POMDP
+policy_file: policy.txt
+horizon: 10
+
+states: 2
+actions: 3
+observations: 2

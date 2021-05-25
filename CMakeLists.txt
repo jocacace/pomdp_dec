@@ -29,6 +29,8 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   roscpp
   std_msgs
+  roslib
+  
 )
 
 
@@ -147,5 +149,5 @@ include_directories(
 )
 
 add_executable(pomdp_decisioner src/pomdp.cpp)
-target_link_libraries(pomdp_decisioner AIToolboxMDP AIToolboxPOMDP AIToolboxFMDP ${LPSOLVE_LIBRARIES})
+target_link_libraries(pomdp_decisioner ${catkin_LIBRARIES} AIToolboxMDP AIToolboxPOMDP AIToolboxFMDP ${LPSOLVE_LIBRARIES})
 
