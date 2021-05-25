@@ -4,6 +4,24 @@ project(pomdp_dec)
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++17)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/")
+set(BOOST_VERSION_REQUIRED 1.67)
+set(EIGEN_VERSION_REQUIRED 3.2.92)
+
+
+find_package(Boost ${BOOST_VERSION_REQUIRED} REQUIRED)
+include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+
+find_package(Eigen3 ${EIGEN_VERSION_REQUIRED} REQUIRED)
+include_directories(SYSTEM ${EIGEN3_INCLUDE_DIR})
+
+find_package(LpSolve REQUIRED)
+include_directories(SYSTEM ${LPSOLVE_INCLUDE_DIR})
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -13,8 +31,10 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
-find_package(LpSolve REQUIRED)
-include_directories(SYSTEM ${LPSOLVE_INCLUDE_DIR})
+
+
+#find_package(LpSolve REQUIRED)
+#include_directories(SYSTEM ${LPSOLVE_INCLUDE_DIR})
 
 
 include_directories( /usr/include/eigen3/ )
@@ -126,19 +146,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/pomdp_dec.cpp
-# )
-
-## Add cmake target dependencies of the library
-## as an example, code may need to be generated before libraries
-## either from message generation or dynamic reconfigure
-# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-## Declare a C++ executable
-## With catkin_make all packages are built within a single CMake context
-## The recommended prefix ensures that target names across packages don't collide
 add_executable(pomdp_decisioner src/pomdp.cpp)
-target_link_libraries( pomdp_decisioner ${catkin_LIBRARIES} /home/jcacace/ros_ws/src/AI-Toolbox/build/libAIToolboxMDP.a /home/jcacace/ros_ws/src/AI-Toolbox/build/libAIToolboxPOMDP.a /home/jcacace/ros_ws/src/AI-Toolbox/build/libAIToolboxFMDP.a ${LTO_SUPPORTED}    )
+target_link_libraries(pomdp_decisioner AIToolboxMDP AIToolboxPOMDP AIToolboxFMDP ${LPSOLVE_LIBRARIES})
 
