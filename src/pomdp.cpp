@@ -64,16 +64,19 @@ void POMDP_DEC::init() {
 
     cout << "POMDP: " << dir_path + "/POMDP/" + _model_file << endl;
     const auto & [S, A, O, T, R, W, discount] = cp.parsePOMDP(modelFile);
-    //AIToolbox::POMDP::Model<AIToolbox::MDP::Model> model(O, S, A);
+
+
     _model = new AIToolbox::POMDP::Model<AIToolbox::MDP::Model>(O,S,A);
     _model->setTransitionFunction(T);
     _model->setRewardFunction(R);
     _model->setObservationFunction(W);
 
     _model->setDiscount( discount );
-    AIToolbox::POMDP::IncrementalPruning solver(_horizon, 0.0);
-    auto solution = solver( *_model ); 
-    _policy = new AIToolbox::POMDP::Policy( _states, _actions, _observations, std::get<1>(solution) );
+
+
+
+    
+
   }
   else {
     ROS_ERROR("Impossible to calculate the policy");
@@ -83,20 +86,27 @@ void POMDP_DEC::init() {
 
 
 void POMDP_DEC::main_loop () {
-  ros::Rate srate(5);
 
 
-  //Wait for initial state
+		//aspetta che arrivi lo stato iniziale
+		
+  	ros::Rate srate(5);
+  	AIToolbox::POMDP::IncrementalPruning solver(_horizon, 0.0);
+  	auto solution = solver( *_model ); 
+		AIToolbox::POMDP::Policy policy (_states, _actions, _observations, std::get<1>(solution) );
+	
+		//cout << policy << endl;
+  	//Wait for initial state
 
 
-    AIToolbox::POMDP::Belief b(_states); 
-    b << 0.5, 0.5;
-    //for(int i=0; i<576; i++ ) b[i] = 0;
-    //b[487] = 1.0;
+  	AIToolbox::POMDP::Belief b(_states); 
+ 	  //b << 0.5, 0.5;
+    for(int i=0; i<576; i++ ) b[i] = 0;
+    	b[487] = 1.0;
     std::default_random_engine rand(AIToolbox::Impl::Seeder::getSeed());
    	auto s = AIToolbox::sampleProbability(_states, b, rand);
 
-    auto [a, ID] = _policy->sampleAction(b, _horizon);
+    auto [a, ID] = policy.sampleAction(b, _horizon);
 	  auto [s1, o, r] = _model->sampleSOR(s, a);
 
     
@@ -119,10 +129,10 @@ void POMDP_DEC::main_loop () {
     totalReward += r;			   
 
     b = AIToolbox::POMDP::updateBelief( *_model, b, a, o);
-    if (t > (int)_policy->getH())
-    std::tie(a, ID) = _policy->sampleAction(b, _policy->getH());
+    if (t > (int)policy.getH())
+    	std::tie(a, ID) = policy.sampleAction(b, policy.getH());
     else
-    std::tie(a, ID) = _policy->sampleAction(ID, o, t);
+    	std::tie(a, ID) = policy.sampleAction(ID, o, t);
 
     cout << "a: " << a << " - " << ID << endl;
     cout << "totalReward: " << totalReward << endl;

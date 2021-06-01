@@ -2,7 +2,7 @@ load_from_file: false
 train_policy: true
 model_file: big.POMDP
 policy_file: policy.txt
-horizon: 10
+horizon: 1
 
 states: 576
 actions: 6
